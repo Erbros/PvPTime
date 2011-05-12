@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import net.erbros.PvPTime.DamageListener;
@@ -24,6 +25,8 @@ public class PvPTime extends JavaPlugin {
 	public String pvpWorldName;
 	public boolean pvpAnnouncedPvP;
 	
+	public boolean pvpPluginDisable;
+	
 	private DamageListener dL = new DamageListener(this);
 	// Getting some logging done.
 	protected final Logger log = Logger.getLogger("Minecraft");
@@ -31,41 +34,43 @@ public class PvPTime extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		// Disable all running timers.
+		Bukkit.getServer().getScheduler().cancelTasks(this);
 		
+		log.info(getDescription().getName() + ": has been disabled (including timers).");
 	}
 
 	@Override
 	public void onEnable() {
-
-		// Check if the world exist.
-		boolean foundWorld = true;
-		try {
-			getServer().getWorld(pvpWorldName);
-		} catch (Exception e) {
-			if(e.getMessage() != null) {
-				foundWorld = false;
-			}
-		}
-		if(foundWorld) {
+		if(pvpPluginDisable == false) {
 			PluginManager pm = this.getServer().getPluginManager();
 			pm.registerEvent(Event.Type.ENTITY_DAMAGE, (Listener) dL, Event.Priority.Low, this);
 			
 			if(pvpEndMsgBroadcast == true || pvpStartMsgBroadcast == true) {
 				checkTime();
 			}
-		}
+		}	
 	}
 	
 	@Override
 	public void onLoad() {
 		getDataFolder().mkdirs();
 		reloadConfig();
-		// Checking if we start with pvpTime
-		long worldTime = getServer().getWorld(pvpWorldName).getTime();
-		if(dL.isItPvPTime(worldTime)) {
-			pvpAnnouncedPvP = true;
+		if(getServer().getWorld(pvpWorldName) == null) {
+			log.info(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled due to wrong world name in config.yml" );
+			pvpPluginDisable = true;
 		} else {
-			pvpAnnouncedPvP = false;
+			pvpPluginDisable = false;
+			
+			log.info(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled." );
+			
+			// Checking if we start with pvpTime
+			long worldTime = getServer().getWorld(pvpWorldName).getTime();
+			if(dL.isItPvPTime(worldTime)) {
+				pvpAnnouncedPvP = true;
+			} else {
+				pvpAnnouncedPvP = false;
+			}
 		}
 	}
 	
