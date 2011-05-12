@@ -1,6 +1,6 @@
 name: PvPTime
 main: net.erbros.PvPTime.PvPTime
-version: 0.1
+version: 0.1.1
 author: Erbros
 website: www.erbros.net
 commands:

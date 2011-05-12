@@ -23,7 +23,7 @@ public class DamageListener extends EntityListener {
 				// What time is it? Thanks to sk89q :)
 				World world = attacker.getWorld();
 				long getTimeWorld = world.getTime();
-				attacker.sendMessage(String.valueOf(getTimeWorld));
+				//attacker.sendMessage(String.valueOf(getTimeWorld));
 				//two different solutions depending on which of the times are higher.
 				
 				if(getTimeWorld > plugin.pvpStartTime || getTimeWorld < plugin.pvpEndTime)
@@ -33,7 +33,6 @@ public class DamageListener extends EntityListener {
 				else
 				{
 					// Give some info that pvp is off during day? Custom.
-					attacker.sendMessage(plugin.pvpEndMsg);
 					// Cancel the event.
 					event.setCancelled(true);
 				}
