@@ -2,18 +2,27 @@ package net.erbros.PvPTime;
 
 import java.util.logging.Logger;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
+
 import net.erbros.PvPTime.DamageListener;
+import net.erbros.PvPTime.PlayerEventListener;
 
 public class PvPTime extends JavaPlugin {
 
+	public static PermissionHandler Permissions;
+	
 	public int pvpStartTime;
 	public String pvpStartMsg;
 	public String pvpStartMsgColor;
@@ -24,10 +33,13 @@ public class PvPTime extends JavaPlugin {
 	public boolean pvpEndMsgBroadcast;
 	public String pvpWorldName;
 	public boolean pvpAnnouncedPvP;
+	public boolean pvpForcePVPSettingsOn;
+	public boolean pvpOverrideEnabled;
 	
 	public boolean pvpPluginDisable;
 	
 	private DamageListener dL = new DamageListener(this);
+	private PlayerEventListener pEL = new PlayerEventListener(this);
 	// Getting some logging done.
 	protected final Logger log = Logger.getLogger("Minecraft");
 	
@@ -42,27 +54,14 @@ public class PvPTime extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		if(pvpPluginDisable == false) {
-			PluginManager pm = this.getServer().getPluginManager();
-			pm.registerEvent(Event.Type.ENTITY_DAMAGE, (Listener) dL, Event.Priority.Low, this);
-			
-			if(pvpEndMsgBroadcast == true || pvpStartMsgBroadcast == true) {
-				checkTime();
-			}
-		}	
-	}
-	
-	@Override
-	public void onLoad() {
-		getDataFolder().mkdirs();
-		reloadConfig();
+		log.info(getServer().getWorlds().toString());
 		if(getServer().getWorld(pvpWorldName) == null) {
-			log.info(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled due to wrong world name in config.yml" );
+			log.info("[" + getDescription().getName() + "] version " + getDescription().getVersion() + " is disabled due to wrong world name in config.yml" );
 			pvpPluginDisable = true;
 		} else {
 			pvpPluginDisable = false;
 			
-			log.info(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled." );
+			log.info("[" + getDescription().getName() + "] version " + getDescription().getVersion() + " is enabled." );
 			
 			// Checking if we start with pvpTime
 			long worldTime = getServer().getWorld(pvpWorldName).getTime();
@@ -72,6 +71,29 @@ public class PvPTime extends JavaPlugin {
 				pvpAnnouncedPvP = false;
 			}
 		}
+		
+		if(pvpPluginDisable == false) {
+			PluginManager pm = this.getServer().getPluginManager();
+			pm.registerEvent(Event.Type.ENTITY_DAMAGE, (Listener) dL, Event.Priority.Low, this);
+			pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, (Listener) pEL, Event.Priority.Low, this);
+			
+			// Are we forcing the pvp setting on?
+			if(pvpForcePVPSettingsOn == true) {
+				getServer().getWorld(pvpWorldName).setPVP(true);
+			}
+			
+			if(pvpEndMsgBroadcast == true || pvpStartMsgBroadcast == true) {
+				checkTime();
+			}
+		}
+		
+	}
+	
+	@Override
+	public void onLoad() {
+		getDataFolder().mkdirs();
+		reloadConfig();
+		
 	}
 	
 	public void reloadConfig() {
@@ -86,6 +108,8 @@ public class PvPTime extends JavaPlugin {
 		pvpEndMsgColor = config.getString("pvp.end.msg.color", "GREEN");
 		pvpEndMsgBroadcast = config.getBoolean("pvp.end.msg.broadcast", true);
 		pvpWorldName = config.getString("pvp.world.name", "world");
+		pvpForcePVPSettingsOn = config.getBoolean("pvp.force.on", true);
+		pvpOverrideEnabled = config.getBoolean("pvp.override.enabled", true);
 		config.save();
 	}
 	
@@ -115,11 +139,12 @@ public class PvPTime extends JavaPlugin {
 				timeLeft = pvpStartTime - worldTime;
 			}
 		}
-		checkTimeClock(timeLeft+1);
+		checkTimeClock(Math.round(timeLeft/3+1));
 	}
 	
 	public void checkTimeClock(long countdown) {
 		getServer().getScheduler().cancelTasks(this);
+		log.info("Checking time");
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 				public void run() {
 					checkTime();
@@ -174,6 +199,25 @@ public class PvPTime extends JavaPlugin {
 			return ChatColor.WHITE;
 		}		
 		return ChatColor.WHITE;
+	}
+	
+	// Stolen from ltguide! Thank you so much :)
+	public Boolean hasPermission(CommandSender sender, String node, Boolean needOp) {
+		if (!(sender instanceof Player)) return true;
+	
+		Player player = (Player) sender;
+		if (Permissions != null) return Permissions.has(player, node);
+		else {
+			Plugin test = getServer().getPluginManager().getPlugin("Permissions");
+			if (test != null) {
+				Permissions = ((Permissions) test).getHandler();
+				return Permissions.has(player, node);
+			}
+		}
+		if(needOp) {
+			return player.isOp();
+		}
+		return true;
 	}
 
 }

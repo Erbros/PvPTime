@@ -1,6 +1,7 @@
 package net.erbros.PvPTime;
 
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -17,8 +18,15 @@ public class DamageListener extends EntityListener {
 		
 		if(event instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent entEvent = (EntityDamageByEntityEvent)event;
+			
 			// check if both are players. thanks LRFLEW :)
 			if(entEvent.getDamager() instanceof Player && entEvent.getEntity() instanceof Player) {
+				// Do we have a player with pvp override?
+				if(plugin.pvpOverrideEnabled == true) {
+					if(plugin.hasPermission((CommandSender) entEvent.getDamager(), "pvptime.override", true) == true) {
+						return;
+					}
+				}
 				Player attacker = (Player) entEvent.getDamager();
 				// What time is it? Thanks to sk89q :)
 				World world = attacker.getWorld();
