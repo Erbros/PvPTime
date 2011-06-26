@@ -12,7 +12,6 @@ public class PlayerEventListener extends PlayerListener {
     
     
 	public void onPlayerCommandPreprocess (PlayerCommandPreprocessEvent event) {
-		plugin.log.info("Recieved listener call");
 		plugin.checkTimeClock(5);
 	}
 }

@@ -109,7 +109,7 @@ public class PvPTime extends JavaPlugin {
 		pvpEndMsgBroadcast = config.getBoolean("pvp.end.msg.broadcast", true);
 		pvpWorldName = config.getString("pvp.world.name", "world");
 		pvpForcePVPSettingsOn = config.getBoolean("pvp.force.on", true);
-		pvpOverrideEnabled = config.getBoolean("pvp.override.enabled", true);
+		pvpOverrideEnabled = config.getBoolean("pvp.override.enabled", false);
 		config.save();
 	}
 	
@@ -144,7 +144,6 @@ public class PvPTime extends JavaPlugin {
 	
 	public void checkTimeClock(long countdown) {
 		getServer().getScheduler().cancelTasks(this);
-		log.info("Checking time");
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 				public void run() {
 					checkTime();
