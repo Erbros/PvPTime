@@ -13,15 +13,9 @@ import org.bukkit.util.config.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
-
-import net.erbros.PvPTime.DamageListener;
-import net.erbros.PvPTime.PlayerEventListener;
 
 public class PvPTime extends JavaPlugin {
 
-	public static PermissionHandler Permissions;
 	
 	public int pvpStartTime;
 	public String pvpStartMsg;
@@ -199,7 +193,7 @@ public class PvPTime extends JavaPlugin {
 		}		
 		return ChatColor.WHITE;
 	}
-	
+	/*
 	// Stolen from ltguide! Thank you so much :)
 	public Boolean hasPermission(CommandSender sender, String node, Boolean needOp) {
 		if (!(sender instanceof Player)) return true;
@@ -218,5 +212,7 @@ public class PvPTime extends JavaPlugin {
 		}
 		return true;
 	}
+         */
+         
 
 }
