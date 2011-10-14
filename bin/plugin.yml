@@ -1,0 +1,13 @@
+name: PvPTime
+main: net.erbros.PvPTime.PvPTime
+version: 0.1.4
+author: Erbros
+website: www.erbros.net
+permissions:
+    pvptime.*:
+        description: Full access to all PvPTime features.
+        children:
+            pvptime.override: true
+    pvptime.override:
+      description: Let the player deal damage even when it's not pvp time.
+      default: false
