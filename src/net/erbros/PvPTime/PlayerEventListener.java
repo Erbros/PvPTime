@@ -11,7 +11,8 @@ public class PlayerEventListener extends PlayerListener {
     }
     
     
-	public void onPlayerCommandPreprocess (PlayerCommandPreprocessEvent event) {
+	@Override
+    public void onPlayerCommandPreprocess (PlayerCommandPreprocessEvent event) {
 		plugin.checkTimeClock(5);
 	}
 }

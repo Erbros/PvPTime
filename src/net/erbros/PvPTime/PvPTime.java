@@ -81,8 +81,8 @@ public class PvPTime extends JavaPlugin {
 		
 		if(pvpPluginDisable == false) {
 			PluginManager pm = this.getServer().getPluginManager();
-			pm.registerEvent(Event.Type.ENTITY_DAMAGE, (Listener) dL, Event.Priority.Low, this);
-			pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, (Listener) pEL, Event.Priority.Low, this);
+			pm.registerEvent(Event.Type.ENTITY_DAMAGE, dL, Event.Priority.Low, this);
+			pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pEL, Event.Priority.Low, this);
 		}
 		
 	}
@@ -173,7 +173,8 @@ public class PvPTime extends JavaPlugin {
 	public void checkTimeClock(long countdown) {
 		getServer().getScheduler().cancelTasks(this);
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-				public void run() {
+				@Override
+                public void run() {
 					checkTime();
 				}
 			}, countdown);
