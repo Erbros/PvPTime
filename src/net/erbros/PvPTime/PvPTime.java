@@ -90,18 +90,7 @@ public class PvPTime extends JavaPlugin {
 	public void reloadConfig() {
 		Configuration config = getConfiguration();
 		config.load();
-		
-		// Let's remove old settings.
-		config.removeProperty("pvp.start.time");
-		config.removeProperty("pvp.start.msg.text");
-		config.removeProperty("pvp.start.msg.color");
-		config.removeProperty("pvp.start.msg.broadcast");
-		config.removeProperty("pvp.end.time");
-		config.removeProperty("pvp.end.msg.text");
-		config.removeProperty("pvp.end.msg.color");
-		config.removeProperty("pvp.end.msg.broadcast");
-		
-		
+			
 		// find the worlds and save enabled status?
         
 	    for(World w : Bukkit.getServer().getWorlds()){
