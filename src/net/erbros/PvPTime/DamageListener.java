@@ -1,6 +1,5 @@
 package net.erbros.PvPTime;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -23,19 +22,13 @@ public class DamageListener extends EntityListener {
                 if(entEvent.getDamager() instanceof Player && entEvent.getEntity() instanceof Player) {
                     // Do we have a player with pvp override?
                 Player attacker = (Player) entEvent.getDamager();
-                if(plugin.pvpOverrideEnabled == true) {
+                if((Boolean) plugin.getValue(plugin.pvpWorlds, attacker.getWorld().toString(), "override") == true) {
                     if(attacker.hasPermission("pvptime.override")) {
                             return;
                     }
                 }
 
-                // What time is it? Thanks to sk89q :)
-                World world = attacker.getWorld();
-                long getTimeWorld = world.getTime();
-                //attacker.sendMessage(String.valueOf(getTimeWorld));
-                //two different solutions depending on which of the times are higher.
-
-                if(isItPvPTime(getTimeWorld) == false) {
+                if(isItPvPTime(attacker.getWorld().getName()) == false) {
                     event.setCancelled(true);
                 }
                 return;
@@ -43,15 +36,17 @@ public class DamageListener extends EntityListener {
         }
     }
 
-    public boolean isItPvPTime(long time) {
-        if(plugin.pvpStartTime < plugin.pvpEndTime) {
-            if(time > plugin.pvpStartTime && time < plugin.pvpEndTime) {
+    public boolean isItPvPTime(String world) {
+        long startTime = Long.parseLong(plugin.getValue(plugin.pvpWorlds, world, "startTime").toString());
+        long endTime = Long.parseLong(plugin.getValue(plugin.pvpWorlds, world, "endTime").toString());
+        if(startTime < endTime) {
+            if( plugin.getServer().getWorld(world).getTime() > startTime && plugin.getServer().getWorld(world).getTime() < endTime) {
                     return true;
             } else {
                     return false;
             }
     } else {
-            if(time > plugin.pvpStartTime || time < plugin.pvpEndTime) {
+            if(plugin.getServer().getWorld(world).getTime() > startTime || plugin.getServer().getWorld(world).getTime() < endTime) {
                     return true;
             } else {
                     return false;
