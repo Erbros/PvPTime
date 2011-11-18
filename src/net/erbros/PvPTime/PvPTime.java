@@ -40,44 +40,16 @@ public class PvPTime extends JavaPlugin {
 	@Override
 	public void onEnable() {
         getDataFolder().mkdirs();
-        reloadConfig();
 	    // Any enabled worlds?
-	    boolean anyEnabled = false;
-	    boolean anyPvPBroadcast = false;
-	    for(World w : Bukkit.getServer().getWorlds()){
-	        if((Boolean) getValue(pvpWorlds,w.getName(),"enabled") == true) {
-	            anyEnabled = true;
-	            
-	            // Checking if we start with pvpTime
-	            if(dL.isItPvPTime(w.getName())) {
-	                pvpAnnouncedWorlds.put(w.getName(), true);
-	            } else {
-                    pvpAnnouncedWorlds.put(w.getName(), false);
-	            }
-	            
-
-	            // Are we forcing the pvp setting on?
-	            if((Boolean) getValue(pvpWorlds, w.getName() ,"forcePvP")) {
-	                getServer().getWorld(w.getName()).setPVP(true);
-	            }
-	            // Any broadcast? Do we need a timer?
-	            if((Boolean) getValue(pvpWorlds, w.getName() ,"startMsgBroadcast") || (Boolean) getValue(pvpWorlds, w.getName() ,"endMsgBroadcast")) {
-	                anyPvPBroadcast = true;
-	            }
-	        }
-        }
+	    
+	    
 	      
-        if(!anyEnabled) {
-            log.info("[" + getDescription().getName() + "] version " + getDescription().getVersion() + " is disabled since no pvp worlds are enabled config.yml" );
-            pvpPluginDisable = true;
-        } else {
-            pvpPluginDisable = false;
-            log.info("[" + getDescription().getName() + "] version " + getDescription().getVersion() + " is enabled." );
-        }
+
+        pvpPluginDisable = false;
+        log.info("[" + getDescription().getName() + "] version " + getDescription().getVersion() + " is enabled." );
+
         // Any broadcast? Then we need a timer ;)
-        if(anyPvPBroadcast) {
-            checkTime();
-        }
+        
 		
 		if(pvpPluginDisable == false) {
 			PluginManager pm = this.getServer().getPluginManager();
@@ -87,34 +59,35 @@ public class PvPTime extends JavaPlugin {
 		
 	}
 	
-	public void reloadConfig() {
-		Configuration config = getConfiguration();
-		config.load();
-			
-		// find the worlds and save enabled status?
-        
+	public void reloadPvP() {
+	    boolean anyEnabled = false;
+        boolean anyPvPBroadcast = false;
 	    for(World w : Bukkit.getServer().getWorlds()){
-	        // First, making a HashMap to go inside the global HashMap of the worlds.
-	        HashMap<String,Object> currentWorld = new HashMap<String, Object>();
-	        // before we put this HashMap inside the global hashmap, let's fill it up.
-	        currentWorld.put("enabled", config.getBoolean("world." + w.getName() + ".enabled", false));
-	        currentWorld.put("startTime", config.getInt("world." + w.getName() + ".start.time", 13000));
-            currentWorld.put("startMsg", config.getString("world." + w.getName() + ".start.msg.text", "It's night and PvP is turned on"));
-            currentWorld.put("startMsgColor", config.getString("world." + w.getName() + ".start.msg.color", "DARK_RED"));
-            currentWorld.put("startMsgBroadcast", config.getBoolean("world." + w.getName() + ".start.msg.broadcast", true));
-            currentWorld.put("endTime", config.getInt("world." + w.getName() + ".end.time", 1000));
-            currentWorld.put("endMsg", config.getString("world." + w.getName() + ".end.msg.text", "It's daytime and PvP is turned off"));
-            currentWorld.put("endMsgColor", config.getString("world." + w.getName() + ".end.msg.color", "GREEN"));
-            currentWorld.put("endMsgBroadcast", config.getBoolean("world." + w.getName() + ".end.msg.broadcast", true));
-            currentWorld.put("forcePvP", config.getBoolean("world." + w.getName() + ".forcePvP", false));
-            currentWorld.put("overrideEnabled", config.getBoolean("world." + w.getName() + ".override", false));
-            
-            
-            // Let's put the currentWorld in pvpWorlds hashMap
-	        pvpWorlds.put(w.getName(), currentWorld);
-            // lets remove currentWorld, just in case.
-	    }
-		config.save();
+            if((Boolean) getValue(pvpWorlds,w.getName(),"enabled") == true) {
+                anyEnabled = true;
+                
+                // Checking if we start with pvpTime
+                if(dL.isItPvPTime(w.getName())) {
+                    pvpAnnouncedWorlds.put(w.getName(), true);
+                } else {
+                    pvpAnnouncedWorlds.put(w.getName(), false);
+                }
+                
+
+                // Are we forcing the pvp setting on?
+                if((Boolean) getValue(pvpWorlds, w.getName() ,"forcePvP")) {
+                    getServer().getWorld(w.getName()).setPVP(true);
+                }
+                // Any broadcast? Do we need a timer?
+                if((Boolean) getValue(pvpWorlds, w.getName() ,"startMsgBroadcast") || (Boolean) getValue(pvpWorlds, w.getName() ,"endMsgBroadcast")) {
+                    anyPvPBroadcast = true;
+                }
+            }
+        }
+	    
+	    if(anyPvPBroadcast) {
+            checkTime();
+        }
 	}
 	
 	public void checkTime() {
@@ -233,6 +206,11 @@ public class PvPTime extends JavaPlugin {
 	public Object getValue (HashMap<String,HashMap<String,Object>> map, String mainKey, String nodeKey) {
 	    HashMap<String,Object> obj = map.get(mainKey);
         Object value = obj.get(nodeKey);
+        
+        // Null check
+        if(value == null) {
+            value = false;
+        }
         
 	    return value;
 	}
