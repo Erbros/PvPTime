@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
@@ -17,12 +16,11 @@ import org.bukkit.World;
 
 public class PvPTime extends JavaPlugin {
 
-	
-	
 	public boolean pvpPluginDisable;
 	
 	private DamageListener dL = new DamageListener(this);
 	private PlayerEventListener pEL = new PlayerEventListener(this);
+	private WorldLoadListener wLL = new WorldLoadListener(this);
 	public HashMap<String,HashMap<String,Object>> pvpWorlds = new HashMap<String,HashMap<String,Object>>();
 	public HashMap<String,Boolean> pvpAnnouncedWorlds = new HashMap<String, Boolean>();
 	// Getting some logging done.
@@ -40,22 +38,20 @@ public class PvPTime extends JavaPlugin {
 	@Override
 	public void onEnable() {
         getDataFolder().mkdirs();
-	    // Any enabled worlds?
+	    // Any enabled worlds already?
+        for(World w : Bukkit.getServer().getWorlds()) {
+            loadWorldConfig(w);
+        }
 	    
-	    
-	      
-
-        pvpPluginDisable = false;
         log.info("[" + getDescription().getName() + "] version " + getDescription().getVersion() + " is enabled." );
 
         // Any broadcast? Then we need a timer ;)
         
 		
-		if(pvpPluginDisable == false) {
-			PluginManager pm = this.getServer().getPluginManager();
-			pm.registerEvent(Event.Type.ENTITY_DAMAGE, dL, Event.Priority.Low, this);
-			pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pEL, Event.Priority.Low, this);
-		}
+		PluginManager pm = this.getServer().getPluginManager();
+		pm.registerEvent(Event.Type.ENTITY_DAMAGE, dL, Event.Priority.Low, this);
+		pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pEL, Event.Priority.Low, this);
+		pm.registerEvent(Event.Type.WORLD_INIT, wLL, Event.Priority.Normal, this);
 		
 	}
 	
@@ -204,7 +200,14 @@ public class PvPTime extends JavaPlugin {
 	
 	// Get value from hashmap inside hashmap
 	public Object getValue (HashMap<String,HashMap<String,Object>> map, String mainKey, String nodeKey) {
-	    HashMap<String,Object> obj = map.get(mainKey);
+	    // do mainKey exist?
+	    if(!map.containsKey(mainKey)) {
+	        return false;
+	    }
+        HashMap<String,Object> obj = map.get(mainKey);
+        if(!obj.containsKey(nodeKey)) {
+            return false;
+        }
         Object value = obj.get(nodeKey);
         
         // Null check
@@ -221,6 +224,35 @@ public class PvPTime extends JavaPlugin {
 	        p.sendMessage(message);
 	    }
 	}
+	
+	public void loadWorldConfig(World w) {
+        Configuration config = getConfiguration();
+        config.load();
+        
+        // First, making a HashMap to go inside the global HashMap of the worlds.
+        HashMap<String,Object> currentWorld = new HashMap<String, Object>();
+        // before we put this HashMap inside the global hashmap, let's fill it up.
+        currentWorld.put("enabled", config.getBoolean("world." + w.getName() + ".enabled", false));
+        currentWorld.put("startTime", config.getInt("world." + w.getName() + ".start.time", 13000));
+        currentWorld.put("startMsg", config.getString("world." + w.getName() + ".start.msg.text", "It's night and PvP is turned on"));
+        currentWorld.put("startMsgColor", config.getString("world." + w.getName() + ".start.msg.color", "DARK_RED"));
+        currentWorld.put("startMsgBroadcast", config.getBoolean("world." + w.getName() + ".start.msg.broadcast", true));
+        currentWorld.put("endTime", config.getInt("world." + w.getName() + ".end.time", 1000));
+        currentWorld.put("endMsg", config.getString("world." + w.getName() + ".end.msg.text", "It's daytime and PvP is turned off"));
+        currentWorld.put("endMsgColor", config.getString("world." + w.getName() + ".end.msg.color", "GREEN"));
+        currentWorld.put("endMsgBroadcast", config.getBoolean("world." + w.getName() + ".end.msg.broadcast", true));
+        currentWorld.put("forcePvP", config.getBoolean("world." + w.getName() + ".forcePvP", false));
+        currentWorld.put("overrideEnabled", config.getBoolean("world." + w.getName() + ".override", false));
+        
+        
+        // Let's put the currentWorld in pvpWorlds hashMap
+        pvpWorlds.put(w.getName(), currentWorld);
+        // lets remove currentWorld, just in case.
+        config.save();
+        // Let's run the plugin refresh so it knows we have some worlds for it ;)
+        reloadPvP();
+    }
+	
 	
 	/*
 	// Stolen from ltguide! Thank you so much :)
