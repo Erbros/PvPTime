@@ -56,11 +56,9 @@ public class PvPTime extends JavaPlugin {
 	}
 	
 	public void reloadPvP() {
-	    boolean anyEnabled = false;
         boolean anyPvPBroadcast = false;
 	    for(World w : Bukkit.getServer().getWorlds()){
             if((Boolean) getValue(pvpWorlds,w.getName(),"enabled") == true) {
-                anyEnabled = true;
                 
                 // Checking if we start with pvpTime
                 if(dL.isItPvPTime(w.getName())) {

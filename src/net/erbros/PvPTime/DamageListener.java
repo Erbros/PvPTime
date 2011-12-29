@@ -22,7 +22,7 @@ public class DamageListener extends EntityListener {
                 if(entEvent.getDamager() instanceof Player && entEvent.getEntity() instanceof Player) {
                     // Do we have a player with pvp override?
                 Player attacker = (Player) entEvent.getDamager();
-                if((Boolean) plugin.getValue(plugin.pvpWorlds, attacker.getWorld().toString(), "overrideEnabled") == true) {
+                if((Boolean) plugin.getValue(plugin.pvpWorlds, attacker.getWorld().getName(), "overrideEnabled") == true) {
                     if(attacker.hasPermission("pvptime.override")) {
                             return;
                     }
