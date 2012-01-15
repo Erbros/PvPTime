@@ -1,6 +1,7 @@
 package net.erbros.PvPTime;
 
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityListener;
@@ -15,12 +16,12 @@ public class DamageListener extends EntityListener {
     @Override
     public void onEntityDamage(EntityDamageEvent event) {
 
-            if(event instanceof EntityDamageByEntityEvent) {
-                EntityDamageByEntityEvent entEvent = (EntityDamageByEntityEvent)event;
+        if(event instanceof EntityDamageByEntityEvent) {
+            EntityDamageByEntityEvent entEvent = (EntityDamageByEntityEvent)event;
 
-                // check if both are players. thanks LRFLEW :)
-                if(entEvent.getDamager() instanceof Player && entEvent.getEntity() instanceof Player) {
-                    // Do we have a player with pvp override?
+            // check if both are players. thanks LRFLEW :)
+            if(entEvent.getDamager() instanceof Player && entEvent.getEntity() instanceof Player) {
+                // Do we have a player with pvp override?
                 Player attacker = (Player) entEvent.getDamager();
                 if((Boolean) plugin.getValue(plugin.pvpWorlds, attacker.getWorld().getName(), "overrideEnabled") == true) {
                     if(attacker.hasPermission("pvptime.override")) {
@@ -31,9 +32,28 @@ public class DamageListener extends EntityListener {
                 if(isItPvPTime(attacker.getWorld().getName()) == false) {
                     event.setCancelled(true);
                 }
-                return;
+                // What if this is an arrow?
+            } else if (entEvent.getDamager() instanceof Projectile && entEvent.getEntity() instanceof Player) {
+                
+                Projectile projectile = (Projectile) entEvent.getDamager();
+                // Is this a player or?
+                if(projectile.getShooter() instanceof Player) {
+                    Player attacker = (Player) projectile.getShooter();
+                    // Do we have a player with pvp override?
+                    if((Boolean) plugin.getValue(plugin.pvpWorlds, attacker.getWorld().getName(), "overrideEnabled") == true) {
+                        if(attacker.hasPermission("pvptime.override")) {
+                                return;
+                        }
+                    }
+                    
+                    if(isItPvPTime(attacker.getWorld().getName()) == false) {
+                        event.setCancelled(true);
+                    }
+                    
+                }
             }
-        }
+            return;
+        } 
     }
 
     public boolean isItPvPTime(String world) {
