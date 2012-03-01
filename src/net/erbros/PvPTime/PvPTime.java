@@ -30,8 +30,6 @@ public class PvPTime extends JavaPlugin {
 	public void onDisable() {
 		// Disable all running timers.
 		Bukkit.getServer().getScheduler().cancelTasks(this);
-		
-		log.info(getDescription().getName() + ": has been disabled (including timers).");
 	}
 
 	@Override
@@ -41,8 +39,6 @@ public class PvPTime extends JavaPlugin {
         for(World w : Bukkit.getServer().getWorlds()) {
             loadWorldConfig(w);
         }
-	    
-        log.info("[" + getDescription().getName() + "] version " + getDescription().getVersion() + " is enabled." );
 
         // Any broadcast? Then we need a timer ;)
         
