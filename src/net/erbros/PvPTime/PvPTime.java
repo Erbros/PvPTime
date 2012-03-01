@@ -4,11 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -49,9 +48,9 @@ public class PvPTime extends JavaPlugin {
         
 		
 		PluginManager pm = this.getServer().getPluginManager();
-		pm.registerEvent(Event.Type.ENTITY_DAMAGE, dL, Event.Priority.Low, this);
-		pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pEL, Event.Priority.Low, this);
-		pm.registerEvent(Event.Type.WORLD_INIT, wLL, Event.Priority.Normal, this);
+		pm.registerEvents(dL, this);
+		pm.registerEvents(pEL, this);
+		pm.registerEvents(wLL, this);
 		
 	}
 	
@@ -224,8 +223,7 @@ public class PvPTime extends JavaPlugin {
 	}
 	
 	public void loadWorldConfig(World w) {
-        Configuration config = getConfiguration();
-        config.load();
+        Configuration config = getConfig();
         
         // First, making a HashMap to go inside the global HashMap of the worlds.
         HashMap<String,Object> currentWorld = new HashMap<String, Object>();
@@ -245,33 +243,9 @@ public class PvPTime extends JavaPlugin {
         
         // Let's put the currentWorld in pvpWorlds hashMap
         pvpWorlds.put(w.getName(), currentWorld);
-        // lets remove currentWorld, just in case.
-        config.save();
         // Let's run the plugin refresh so it knows we have some worlds for it ;)
         reloadPvP();
     }
-	
-	
-	/*
-	// Stolen from ltguide! Thank you so much :)
-	public Boolean hasPermission(CommandSender sender, String node, Boolean needOp) {
-		if (!(sender instanceof Player)) return true;
-	
-		Player player = (Player) sender;
-		if (Permissions != null) return Permissions.has(player, node);
-		else {
-			Plugin test = getServer().getPluginManager().getPlugin("Permissions");
-			if (test != null) {
-				Permissions = ((Permissions) test).getHandler();
-				return Permissions.has(player, node);
-			}
-		}
-		if(needOp) {
-			return player.isOp();
-		}
-		return true;
-	}
-         */
-         
+	  
 
 }

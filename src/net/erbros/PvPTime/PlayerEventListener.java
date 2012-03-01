@@ -1,17 +1,20 @@
 package net.erbros.PvPTime;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerListener;
 
-public class PlayerEventListener extends PlayerListener {
+public class PlayerEventListener implements Listener {
     private PvPTime plugin;
+    
     
     PlayerEventListener(PvPTime instance) {
     	plugin = instance;
     }
     
     
-	@Override
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerCommandPreprocess (PlayerCommandPreprocessEvent event) {
 		plugin.checkTimeClock(5);
 	}

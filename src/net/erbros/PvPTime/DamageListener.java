@@ -2,18 +2,20 @@ package net.erbros.PvPTime;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityListener;
 
-public class DamageListener extends EntityListener {
+public class DamageListener implements Listener {
     private PvPTime plugin;
     
     DamageListener(PvPTime instance) {
     	plugin = instance;
     }
     
-    @Override
+    @EventHandler(priority = EventPriority.LOW)
     public void onEntityDamage(EntityDamageEvent event) {
 
         if(event instanceof EntityDamageByEntityEvent) {
