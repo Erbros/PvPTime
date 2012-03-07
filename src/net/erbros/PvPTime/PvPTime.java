@@ -261,7 +261,11 @@ public class PvPTime extends JavaPlugin {
         config.set("world." + w.getName() + ".end.msg.broadcast", true);
         config.set("world." + w.getName() + ".forcePvP", false);
         config.set("world." + w.getName() + ".override", false);
+        
+        saveConfig();
+        
 	}
+	
 	  
 
 }
