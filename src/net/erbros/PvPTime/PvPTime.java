@@ -221,6 +221,10 @@ public class PvPTime extends JavaPlugin {
 	public void loadWorldConfig(World w) {
         Configuration config = getConfig();
         
+        if(!config.contains("world." + w.getName() + ".enabled")) {
+            setWorldConfig(w);
+        }
+        
         // First, making a HashMap to go inside the global HashMap of the worlds.
         HashMap<String,Object> currentWorld = new HashMap<String, Object>();
         // before we put this HashMap inside the global hashmap, let's fill it up.
@@ -242,6 +246,22 @@ public class PvPTime extends JavaPlugin {
         // Let's run the plugin refresh so it knows we have some worlds for it ;)
         reloadPvP();
     }
+	
+	public void setWorldConfig(World w) {
+        Configuration config = getConfig();
+
+        config.set("world." + w.getName() + ".enabled", false);
+        config.set("world." + w.getName() + ".start.time", 13000);
+        config.set("world." + w.getName() + ".start.msg.text", "It's night and PvP is turned on");
+        config.set("world." + w.getName() + ".start.msg.color", "DARK_RED");
+        config.set("world." + w.getName() + ".start.msg.broadcast", true);
+        config.set("world." + w.getName() + ".end.time", 1000);
+        config.set("world." + w.getName() + ".end.msg.text", "It's daytime and PvP is turned off");
+        config.set("world." + w.getName() + ".end.msg.color", "GREEN");
+        config.set("world." + w.getName() + ".end.msg.broadcast", true);
+        config.set("world." + w.getName() + ".forcePvP", false);
+        config.set("world." + w.getName() + ".override", false);
+	}
 	  
 
 }
