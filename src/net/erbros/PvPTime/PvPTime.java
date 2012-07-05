@@ -145,50 +145,15 @@ public class PvPTime extends JavaPlugin {
 	public void announceNow (boolean pvpOn, String world) {
 		if(pvpOn) {
 			if((Boolean) getValue(pvpWorlds,world,"startMsgBroadcast")) {
-			    broadcastAllPlayersWorld(Bukkit.getWorld(world),getColorFromString((String) getValue(pvpWorlds,world,"startMsgColor")) + (String) getValue(pvpWorlds,world,"startMsg"));
+			    broadcastAllPlayersWorld(Bukkit.getWorld(world), (String) getValue(pvpWorlds,world,"startMsg"));
 			}
 			pvpAnnouncedWorlds.put(world, true);			
 		} else {
 			if((Boolean) getValue(pvpWorlds,world,"endMsgBroadcast")) {
-			    broadcastAllPlayersWorld(Bukkit.getWorld(world),getColorFromString((String) getValue(pvpWorlds,world,"endMsgColor")) + (String) getValue(pvpWorlds,world,"endMsg"));
+			    broadcastAllPlayersWorld(Bukkit.getWorld(world), (String) getValue(pvpWorlds,world,"endMsg"));
 			}
 			pvpAnnouncedWorlds.put(world, false); 
 		}
-	}
-	
-	public ChatColor getColorFromString(String color) {
-		if(color.equalsIgnoreCase("BLACK")) {
-			return ChatColor.BLACK;
-		}else if(color.equalsIgnoreCase("DARK_BLUE")) {
-			return ChatColor.DARK_BLUE;
-		}else if(color.equalsIgnoreCase("DARK_AQUA")) {
-			return ChatColor.DARK_AQUA;
-		}else if(color.equalsIgnoreCase("DARK_RED")) {
-			return ChatColor.DARK_RED;
-		}else if(color.equalsIgnoreCase("DARK_PURPLE")) {
-			return ChatColor.DARK_PURPLE;
-		}else if(color.equalsIgnoreCase("GOLD")) {
-			return ChatColor.GOLD;
-		}else if(color.equalsIgnoreCase("GRAY")) {
-			return ChatColor.GRAY;
-		}else if(color.equalsIgnoreCase("DARK_GRAY")) {
-			return ChatColor.DARK_GRAY;
-		}else if(color.equalsIgnoreCase("BLUE")) {
-			return ChatColor.BLUE;
-		}else if(color.equalsIgnoreCase("GREEN")) {
-			return ChatColor.GREEN;
-		}else if(color.equalsIgnoreCase("AQUA")) {
-			return ChatColor.AQUA;
-		}else if(color.equalsIgnoreCase("RED")) {
-			return ChatColor.RED;
-		}else if(color.equalsIgnoreCase("LIGHT_PURPLE")) {
-			return ChatColor.LIGHT_PURPLE;
-		}else if(color.equalsIgnoreCase("YELLOW")) {
-			return ChatColor.YELLOW;
-		}else if(color.equalsIgnoreCase("WHITE")) {
-			return ChatColor.WHITE;
-		}		
-		return ChatColor.WHITE;
 	}
 	
 	// Get value from hashmap inside hashmap
@@ -214,7 +179,7 @@ public class PvPTime extends JavaPlugin {
 	public void broadcastAllPlayersWorld(World world, String message) {
 	    List<Player> players = world.getPlayers();
 	    for(Player p : players) {
-	        p.sendMessage(message);
+	        p.sendMessage(message.replaceAll("&([0-9a-fk-or])", "\u00a7$1"));
 	    }
 	}
 	
@@ -230,12 +195,10 @@ public class PvPTime extends JavaPlugin {
         // before we put this HashMap inside the global hashmap, let's fill it up.
         currentWorld.put("enabled", config.getBoolean("world." + w.getName() + ".enabled", false));
         currentWorld.put("startTime", config.getInt("world." + w.getName() + ".start.time", 13000));
-        currentWorld.put("startMsg", config.getString("world." + w.getName() + ".start.msg.text", "It's night and PvP is turned on"));
-        currentWorld.put("startMsgColor", config.getString("world." + w.getName() + ".start.msg.color", "DARK_RED"));
+        currentWorld.put("startMsg", config.getString("world." + w.getName() + ".start.msg.text", "&4It's night and PvP is turned on"));
         currentWorld.put("startMsgBroadcast", config.getBoolean("world." + w.getName() + ".start.msg.broadcast", true));
         currentWorld.put("endTime", config.getInt("world." + w.getName() + ".end.time", 1000));
-        currentWorld.put("endMsg", config.getString("world." + w.getName() + ".end.msg.text", "It's daytime and PvP is turned off"));
-        currentWorld.put("endMsgColor", config.getString("world." + w.getName() + ".end.msg.color", "GREEN"));
+        currentWorld.put("endMsg", config.getString("world." + w.getName() + ".end.msg.text", "&aIt's daytime and PvP is turned off"));
         currentWorld.put("endMsgBroadcast", config.getBoolean("world." + w.getName() + ".end.msg.broadcast", true));
         currentWorld.put("forcePvP", config.getBoolean("world." + w.getName() + ".forcePvP", false));
         currentWorld.put("overrideEnabled", config.getBoolean("world." + w.getName() + ".override", false));
@@ -252,12 +215,10 @@ public class PvPTime extends JavaPlugin {
 
         config.set("world." + w.getName() + ".enabled", false);
         config.set("world." + w.getName() + ".start.time", 13000);
-        config.set("world." + w.getName() + ".start.msg.text", "It's night and PvP is turned on");
-        config.set("world." + w.getName() + ".start.msg.color", "DARK_RED");
+        config.set("world." + w.getName() + ".start.msg.text", "&4It's night and PvP is turned on");
         config.set("world." + w.getName() + ".start.msg.broadcast", true);
         config.set("world." + w.getName() + ".end.time", 1000);
-        config.set("world." + w.getName() + ".end.msg.text", "It's daytime and PvP is turned off");
-        config.set("world." + w.getName() + ".end.msg.color", "GREEN");
+        config.set("world." + w.getName() + ".end.msg.text", "&aIt's daytime and PvP is turned off");
         config.set("world." + w.getName() + ".end.msg.broadcast", true);
         config.set("world." + w.getName() + ".forcePvP", false);
         config.set("world." + w.getName() + ".override", false);
