@@ -21,8 +21,10 @@ public class PvPTime extends JavaPlugin {
 	private WorldLoadListener wLL = new WorldLoadListener(this);
 	public HashMap<String,HashMap<String,Object>> pvpWorlds = new HashMap<String,HashMap<String,Object>>();
 	public HashMap<String,Boolean> pvpAnnouncedWorlds = new HashMap<String, Boolean>();
+    protected PvPTimeCommandExecutor myExecutor;
 	// Getting some logging done.
 	protected final Logger log = Logger.getLogger("Minecraft");
+	public boolean debug;
 	
 	
 	@Override
@@ -33,14 +35,18 @@ public class PvPTime extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+	    // Do we have debug enabled?
+	    debug = getConfig().getBoolean("settings.debug", false);
+	    
         getDataFolder().mkdirs();
 	    // Any enabled worlds already?
         for(World w : Bukkit.getServer().getWorlds()) {
             loadWorldConfig(w);
         }
 
-        // Any broadcast? Then we need a timer ;)
-        
+        // Get ready for the commands
+        myExecutor = new PvPTimeCommandExecutor(this);
+        getCommand("pvptime").setExecutor(myExecutor);
 		
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(dL, this);
@@ -50,9 +56,12 @@ public class PvPTime extends JavaPlugin {
 	}
 	
 	public void reloadPvP() {
+        debug = getConfig().getBoolean("settings.debug", false);
+        debugMsg("Reloading config");
         boolean anyPvPBroadcast = false;
 	    for(World w : Bukkit.getServer().getWorlds()){
             if((Boolean) getValue(pvpWorlds,w.getName(),"enabled") == true) {
+                
                 
                 // Checking if we start with pvpTime
                 if(dL.isItPvPTime(w.getName())) {
@@ -65,10 +74,12 @@ public class PvPTime extends JavaPlugin {
                 // Are we forcing the pvp setting on?
                 if((Boolean) getValue(pvpWorlds, w.getName() ,"forcePvP")) {
                     getServer().getWorld(w.getName()).setPVP(true);
+                    debugMsg("Forced pvp on in world: " + w.getName());
                 }
                 // Any broadcast? Do we need a timer?
                 if((Boolean) getValue(pvpWorlds, w.getName() ,"startMsgBroadcast") || (Boolean) getValue(pvpWorlds, w.getName() ,"endMsgBroadcast")) {
                     anyPvPBroadcast = true;
+                    debugMsg("We need to check the time.");
                 }
             }
         }
@@ -81,26 +92,31 @@ public class PvPTime extends JavaPlugin {
 	public void checkTime() {
 		// is it pvp on now?
         long lowestTimeLeft = 0;
+        debugMsg("Checking time");
 	    
 	    for(World w : Bukkit.getServer().getWorlds()){
     	    if((Boolean) getValue(pvpWorlds,w.getName(),"enabled")) {
+    	        debugMsg(w.getName() + " enabled. Checking.");
     	        if((Boolean) getValue(pvpWorlds,w.getName(),"startMsgBroadcast") || (Boolean) getValue(pvpWorlds,w.getName(),"endMsgBroadcast")) {
             		if(dL.isItPvPTime(w.getName())) {
             			// it's pvp time, but have we announced it?
             			if(pvpAnnouncedWorlds.get(w.getName()) == false) {
             				announceNow(true,w.getName());
+            				debugMsg("Announcing pvp time");
             			}
             			
             		} else {
             			// it's not pvp time, but have we announced it?
             			if(pvpAnnouncedWorlds.get(w.getName()) == true) {
             				announceNow(false,w.getName());
+            				debugMsg("Announcing end of pvp time");
             			}
             			
             		}
             		// Is this the lowest time left?
             		if(nextBroadcast(w.getName()) < lowestTimeLeft || lowestTimeLeft == 0) {
             		    lowestTimeLeft = nextBroadcast(w.getName());
+                        debugMsg("New lowest time: " + lowestTimeLeft);
             		}
     	        }
     	    }
@@ -226,6 +242,10 @@ public class PvPTime extends JavaPlugin {
         
 	}
 	
-	  
+	//debug msg
+	public void debugMsg (String msg) {
+	    if(debug)
+	        log.info("PvPTime debug: " + msg);
+	}
 
 }

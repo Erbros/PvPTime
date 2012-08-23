@@ -1,13 +1,22 @@
 name: PvPTime
 main: net.erbros.PvPTime.PvPTime
-version: 0.1.12
+version: 0.1.14
 author: Erbros
 website: www.erbros.net
+commands:
+  pvptime:
+    description: Information regarding usage of PvPTime.
+    usage: /<command>
+    aliases: []
 permissions:
     pvptime.*:
         description: Full access to all PvPTime features.
         children:
             pvptime.override: true
+            pvptime.reload: true
     pvptime.override:
       description: Let the player deal damage even when it's not pvp time.
+      default: false
+    pvptime.reload:
+      description: Permission to reload the configs.
       default: false
