@@ -10,6 +10,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.ChatColor;
 
 
 public class PvPTime extends JavaPlugin {
@@ -194,7 +195,7 @@ public class PvPTime extends JavaPlugin {
 	public void broadcastAllPlayersWorld(World world, String message) {
 	    List<Player> players = world.getPlayers();
 	    for(Player p : players) {
-	        p.sendMessage(message.replaceAll("&([0-9a-fk-or])", "\u00a7$1"));
+	        p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
 	    }
 	}
 	
